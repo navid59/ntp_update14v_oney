@@ -361,6 +361,8 @@ class netopiapayments extends WC_Payment_Gateway {
 			$billingAddress->lastName		= $customer_order->get_billing_last_name();
 			$billingAddress->address		= $customer_order->get_billing_address_1();
 			$billingAddress->email			= $customer_order->get_billing_email();
+			$billingAddress->city           = $customer_order->get_billing_city();
+            $billingAddress->zipCode        = $customer_order->get_billing_postcode();
 			$billingAddress->mobilePhone	= $customer_order->get_billing_phone();
 			$objPmReq->invoice->setBillingAddress($billingAddress);
 
@@ -380,6 +382,7 @@ class netopiapayments extends WC_Payment_Gateway {
 			'customer_ip'	=> $_SERVER['REMOTE_ADDR'],	
 			'method'		=> $method,	
 			'cartSummary' 	=> $this->getCartSummary(),	
+			'ntpPlugin' 	=> $this->getNtpPluginInfo(),
 			'wordpress' 	=> $this->getWpInfo(),	
 			'wooCommerce' 	=> $this->getWooInfo()	
 		);
@@ -906,5 +909,10 @@ class netopiapayments extends WC_Payment_Gateway {
 	public function getWooInfo() {	
 		$wooCommerce_ver = WC()->version;	
 		return 'Version '.$wooCommerce_ver;	
+	}
+
+	public function getNtpPluginInfo() {
+		$ntpPlugin_ver ="Version 1.4";
+		return $ntpPlugin_ver;
 	}
 }
