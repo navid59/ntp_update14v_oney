@@ -21,6 +21,8 @@ class Netopia_Payment_Address
     public $lastName = null;
     public $address = null;
     public $email = null;
+    public $city = null;
+    public $zipCode = null;
     public $mobilePhone = null;
 
     public function __construct (DOMNode $elem = null)
@@ -62,6 +64,16 @@ class Netopia_Payment_Address
         if ($elems->length == 1)
         {
             $this->email = urldecode($elems->item(0)->nodeValue);
+        }
+        $elems = $elem->getElementsByTagName('city');
+        if ($elems->length == 1)
+        {
+            $this->city = urldecode($elems->item(0)->nodeValue);
+        }
+        $elems = $elem->getElementsByTagName('zip_code');
+        if ($elems->length == 1)
+        {
+            $this->zipCode = urldecode($elems->item(0)->nodeValue);
         }
         $elems = $elem->getElementsByTagName('mobile_phone');
         if ($elems->length == 1)
@@ -120,6 +132,20 @@ class Netopia_Payment_Address
             $addrElem->appendChild($xmlElem);
         }
         
+        if ($this->city != null)
+        {
+            $xmlElem = $xmlDoc->createElement('city');
+            $xmlElem->appendChild($xmlDoc->createCDATASection(urlencode($this->city)));
+            $addrElem->appendChild($xmlElem);
+        }
+
+        if ($this->zipCode != null)
+        {
+            $xmlElem = $xmlDoc->createElement('zip_code');
+            $xmlElem->appendChild($xmlDoc->createCDATASection(urlencode($this->zipCode)));
+            $addrElem->appendChild($xmlElem);
+        }
+
         if ($this->mobilePhone != null)
         {
             $xmlElem = $xmlDoc->createElement('mobile_phone');
@@ -138,6 +164,8 @@ class Netopia_Payment_Address
             'ppiLastName' => $this->lastName , 
             'ppiAddress' => $this->address , 
             'ppiEmail' => $this->email , 
+            'ppiCity' => $this->city,
+            'ppiZipCode' => $this->zipCode,
             'ppiPhone' => $this->mobilePhone);
     }
 }

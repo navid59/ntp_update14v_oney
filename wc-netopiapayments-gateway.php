@@ -267,6 +267,7 @@ class netopiapayments extends WC_Payment_Gateway {
     }
 
 	// Validate fields
+	// Because we already remove the other method of payment, so is not necessary to validate it
 	// public function validate_fields() {
 	// 	$method_pay            = $this->get_post( 'netopia_method_pay' );
 	// 	// Check card number
