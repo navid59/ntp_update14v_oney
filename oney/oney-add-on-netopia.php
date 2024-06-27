@@ -1,170 +1,87 @@
 <?php
 
 /**
-
- * Plugin Name: Oney Addon Netopia - 3x4x Rate prin cardul de debit
-
- * Plugin URI: https://oney.ro/
-
- * Description: This plugin adds an Oney widget displaying important info regarding the payment option throughZ the Netopia plugin.
-
- * Version: 1.4
-
- * Author: Oney Romania
-
- * Author URI: https://oney.ro/
-
+ * This additional file is the Oney widget, which displays some descriptive information regarding the payment rate options through Oney.
  **/
- 
-/* BEGIN PLUGIN SETTIGN SPAGE */
-// Define a global variable to store the link to metoda de plata value
-
-function create_oney_netopia_page() {
-    global $wpdb;
-
-    // Create the table if not exists
-    $table_name = $wpdb->prefix . 'oney_netopia_vars';
-    
-    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        oney_name TEXT,
-        oney_value TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;";
-
-    // Execute the query
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
-    
-    // Check if the page already exists
-    $page_query = new WP_Query( array(
-        'post_type' => 'page',
-        'post_status' => array( 'publish'), // Include all statuses
-        'posts_per_page' => 1,
-        'title' => 'Oferta Rate Oney'
-    ) );
-
-    if( ! $page_query->have_posts() ) {
-        // Page doesn't exist, so create it
-        $page_args = array(
-            'post_title'    => 'Oferta Rate Oney',
-            'post_content'  => '[oney-netopia-metoda-plata]',
-            'post_status'   => 'publish',
-            'post_type'     => 'page'
-        );
-
-        // Insert the post into the database and store the ID
-        $page_id = wp_insert_post( $page_args );
-        
-
-    } else {
-        // Page already exists, so retrieve its ID
-        $page = $page_query->posts[0];
-        $page_id = $page->ID;
-    }
-    
-    // Check if an entry with oney_name = 'oney_netopia_details_page_id' exists
-    $existing_entry = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_name WHERE oney_name = %s", 'oney_netopia_details_page_id' ) );
-
-    if ( $existing_entry ) {
-        // Entry already exists, so update its value
-        $wpdb->update( 
-            $table_name, 
-            array( 
-                'oney_value' => $page_id
-            ), 
-            array( 
-                'oney_name' => 'oney_netopia_details_page_id'
-            ) 
-        );
-    } else {
-        // Entry doesn't exist, so insert a new entry
-        $wpdb->insert( 
-            $table_name, 
-            array( 
-                'oney_name' => 'oney_netopia_details_page_id',
-                'oney_value' => $page_id
-            ) 
-        );
-    }
-
-    // Restore original post data
-    wp_reset_postdata();
-}
-
-
-// Hook into the activation function and create the page
-register_activation_hook( __FILE__, 'create_oney_netopia_page' );
 
 function get_oney_netopia_details_page_id() {
+    error_log('ONEY FUNC -> get_oney_netopia_details_page_id()');
     global $wpdb;
 
     // Query the database to get the oney_value of 'oney_netopia_details_page_id'
     $table_name = $wpdb->prefix . 'oney_netopia_vars';
     $result = $wpdb->get_row( $wpdb->prepare( "SELECT oney_value FROM $table_name WHERE oney_name = %s", 'oney_netopia_details_page_id' ) );
-
+    
     if ($result) {
         // The value was retrieved successfully, return it
+        error_log('ONEY FUNC -> The value was retrieved successfully, return it -> result : ');
+        // error_log($result);
         return $result->oney_value;
     } else {
         // The value was not found in the database, return null or handle as needed
+        error_log('he value was not found in the database, return null or handle as needed -> result : '.$result);
         return null;
     }
 }
 
 
-
+/** Temporary Remove */
 // Register plugin settings
-function oney_addon_netopia_register_settings() {
-    // Add a section for plugin settings
-    add_settings_section(
-        'oney_addon_netopia_settings_section',
-        'Oney Addon Netopia Settings',
-        'oney_addon_netopia_settings_section_callback',
-        'oney_addon_netopia'
-    );
+// function oney_addon_netopia_register_settings() {
+//     error_log('ONEY FUNC -> oney_addon_netopia_register_settings()');
+//     // Add a section for plugin settings
+//     add_settings_section(
+//         'oney_addon_netopia_settings_section',
+//         'Oney Addon Netopia Settings',
+//         'oney_addon_netopia_settings_section_callback',
+//         'oney_addon_netopia'
+//     );
 
-    // Add a field for "Pagina detalii metode de plata" URL
-    /*
-    add_settings_field(
-        'oney_addon_netopia_detalii_metode_plata_url',
-        'Pagina detalii metode de plata',
-        'oney_addon_netopia_detalii_metode_plata_url_callback',
-        'oney_addon_netopia',
-        'oney_addon_netopia_settings_section'
-    );
-    */
+//     // Add a field for "Pagina detalii metode de plata" URL
+//     /*
+//     add_settings_field(
+//         'oney_addon_netopia_detalii_metode_plata_url',
+//         'Pagina detalii metode de plata',
+//         'oney_addon_netopia_detalii_metode_plata_url_callback',
+//         'oney_addon_netopia',
+//         'oney_addon_netopia_settings_section'
+//     );
+//     */
     
-    // Add a field for "Titlu metoda de plata" with default value
-    add_settings_field(
-        'oney_addon_netopia_titlu_metoda_plata',
-        'Titlu Checkout Metoda de plata',
-        'oney_addon_netopia_titlu_metoda_plata_callback',
-        'oney_addon_netopia',
-        'oney_addon_netopia_settings_section',
-        array(
-            'default' => '<span>sau în 3-4 rate prin </span>'
-        )
-    );
+//     // Add a field for "Titlu metoda de plata" with default value
+//     add_settings_field(
+//         'oney_addon_netopia_titlu_metoda_plata',
+//         'Titlu Checkout Metoda de plata',
+//         'oney_addon_netopia_titlu_metoda_plata_callback',
+//         'oney_addon_netopia',
+//         'oney_addon_netopia_settings_section',
+//         array(
+//             'default' => '<span>sau în 3-4 rate prin </span>'
+//         )
+//     );
     
-    // Add a field for hiding payment options
-    add_settings_field(
-        'oney_addon_netopia_hide_payment_options',
-        'Ascunde optiunile de plata din checkout generate Netopia(Credit Card, SMS, Bitcoin, etc.)',
-        'oney_addon_netopia_hide_payment_options_callback',
-        'oney_addon_netopia',
-        'oney_addon_netopia_settings_section'
-    );
+//     // Add a field for hiding payment options
+//     add_settings_field(
+//         'oney_addon_netopia_hide_payment_options',
+//         'Ascunde optiunile de plata din checkout generate Netopia(Credit Card, SMS, Bitcoin, etc.)',
+//         'oney_addon_netopia_hide_payment_options_callback',
+//         'oney_addon_netopia',
+//         'oney_addon_netopia_settings_section'
+//     );
 
-    // Register the settings
-    register_setting('oney_addon_netopia_settings_group', 'oney_addon_netopia_titlu_metoda_plata');
-    register_setting('oney_addon_netopia_settings_group', 'oney_addon_netopia_hide_payment_options');
-    //register_setting('oney_addon_netopia_settings_group', 'oney_addon_netopia_detalii_metode_plata_url');
-}
-add_action('admin_init', 'oney_addon_netopia_register_settings');
+//     // Register the settings
+//     register_setting('oney_addon_netopia_settings_group', 'oney_addon_netopia_titlu_metoda_plata');
+//     register_setting('oney_addon_netopia_settings_group', 'oney_addon_netopia_hide_payment_options');
+//     //register_setting('oney_addon_netopia_settings_group', 'oney_addon_netopia_detalii_metode_plata_url');
+// }
+// add_action('admin_init', 'oney_addon_netopia_register_settings');
+
+
 
 // Section callback function
 function oney_addon_netopia_settings_section_callback() {
+    error_log('ONEY FUNC -> oney_addon_netopia_settings_section_callback()');
+
     echo '<p>Aici vei putea sa iti configurezi setarile modului.</p>';
 // Display the shortcode in a box with a different background color and border
     echo '<div style="background-color: #f9f9f9; border: 1px solid #ccc; padding: 10px; margin-top: 10px;">';
@@ -183,8 +100,10 @@ function oney_addon_netopia_detalii_metode_plata_url_callback() {
 
 // Field callback function for "Titlu metoda de plata"
 function oney_addon_netopia_titlu_metoda_plata_callback() {
+    error_log('ONEY FUNC -> oney_addon_netopia_titlu_metoda_plata_callback()');
+
     $value = get_option('oney_addon_netopia_titlu_metoda_plata');
-    $default = '<span> sau în 3-4 rate prin <img src="/wp-content/plugins/oney-add-on-netopia/images/oney3x4x-logo.png" style="display: inline; width: 95px;"></span>';
+    $default = '<span> sau în 3-4 rate prin <img src="'.NTP_PLUGIN_DIR.'img/oney3x4x-logo.png" style="display: inline; width: 95px;"></span>';
 
     echo '<div class="oney-titlu-metoda-plata-editor">';
     wp_editor($value ?: $default, 'oney_addon_netopia_titlu_metoda_plata', array('textarea_name' => 'oney_addon_netopia_titlu_metoda_plata', 'textarea_rows' => 5, 'editor_class' => 'widefat', 'default_editor' => 'html', 'media_buttons' => false, 'quicktags' => true, 'teeny' => false, 'dfw' => false, 'tinymce' => true, 'drag_drop_upload' => false));
@@ -195,6 +114,8 @@ function oney_addon_netopia_titlu_metoda_plata_callback() {
 
 // Callback function for hiding payment options
 function oney_addon_netopia_hide_payment_options_callback() {
+    error_log('ONEY FUNC -> oney_addon_netopia_hide_payment_options_callback()');
+
     $hide_payment_options = get_option('oney_addon_netopia_hide_payment_options', 'yes'); // Default value is 'yes'
 
     echo '<select id="oney_addon_netopia_hide_payment_options" name="oney_addon_netopia_hide_payment_options">';
@@ -206,6 +127,8 @@ function oney_addon_netopia_hide_payment_options_callback() {
 
 // Add plugin settings page
 function oney_addon_netopia_add_settings_page() {
+    error_log('ONEY FUNC -> oney_addon_netopia_add_settings_page()');
+
     add_options_page(
         'Oney Addon Netopia Settings',
         'Oney Addon Netopia',
@@ -218,6 +141,7 @@ add_action('admin_menu', 'oney_addon_netopia_add_settings_page');
 
 // Render settings page
 function oney_addon_netopia_settings_page() {
+    error_log('ONEY FUNC -> oney_addon_netopia_settings_page()');
     ?>
     <div class="wrap">
         <h2>Oney Addon Netopia Settings</h2>
@@ -232,6 +156,8 @@ function oney_addon_netopia_settings_page() {
 
 // Add settings link on plugins page
 function oney_addon_netopia_add_settings_link($links) {
+    error_log('ONEY FUNC -> oney_addon_netopia_add_settings_link()');
+
     $settings_link = '<a href="options-general.php?page=oney_addon_netopia_settings">Settings</a>';
     array_unshift($links, $settings_link);
     return $links;
@@ -247,7 +173,8 @@ add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'oney_addon_netop
 
 function enqueue_custom_scripts() {
     // Enqueue the image script
-    wp_enqueue_script('oney-logo', get_template_directory_uri() . '/wp-content/plugins/oney-add-on-netopia/images/oney3x4x-logo.png');
+    // wp_enqueue_script('oney-logo', get_template_directory_uri() . '/wp-content/plugins/netopia-payments-payment-gatewa/img/oney3x4x-logo.png');
+    wp_enqueue_script('oney-logo', NTP_PLUGIN_DIR.'img/oney3x4x-logo.png');
 }
 add_action('wp_enqueue_scripts', 'enqueue_custom_scripts');
 
@@ -255,7 +182,7 @@ add_action('wp_enqueue_scripts', 'enqueue_custom_scripts');
 // ENQUE CSS
  function enqueue_oney_netopia_addon_css() {
     // Enqueue the CSS file provided by the plugin
-    wp_enqueue_style( 'oney-netopia-addon-css', plugins_url( '/css/oney-netopia-addon.css', __FILE__ ) );
+    wp_enqueue_style( 'oney-netopia-addon-css', NTP_PLUGIN_DIR.'css/oney-netopia-addon.css');
 }
 add_action( 'wp_enqueue_scripts', 'enqueue_oney_netopia_addon_css' );
  
@@ -293,7 +220,7 @@ function oneynetopia_34_single_product_page_simulator($product_price, $cart_tota
         <div class='oney-netopia-container-single-product' style=''>
             <div class='cart-total-oney-netopia' style='display:none;'>". $cart_total ."</div>
     
-            <img id='oney-netopia-image' src='/wp-content/plugins/oney-add-on-netopia/images/oney-3-4-rate-logo.png' title='Oney 3-4 Rate cu cardul de debit' style=''>
+            <img id='oney-netopia-image' src='".NTP_PLUGIN_DIR."img/oney-3-4-rate-logo.png' title='Oney 3-4 Rate cu cardul de debit' style=''>
     
     
             <p class='text-oney-netopia-single-product'>Plătește online în <strong>3 sau 4 rate</strong> în doar câțiva pași! <a href='".$oney_details_page_url."' class='oney-netopia-details' target='_blank'>Vezi detalii</a></p>
@@ -463,19 +390,23 @@ function get_cart_total_callback() {
 
 
 function oney_450_section($display = 'block') {
+    global $wpdb;
+
+    // Check if "Oney" is selected in woocommerce blocks
     
+    $NtpPaymentMethod = get_option( 'woocommerce_netopiapayments_settings', [] );
+    if(in_array('oney', $NtpPaymentMethod['payment_methods'])) {
+        $display = 'block';
+    } else {
+        $display = 'none';
+    }
+
     // Get the minimum purchase amount (adjust accordingly)
     $min_purchase_amount = 450;
-    
-    global $wpdb;
 
     $oney_netopia_details_page_id = get_oney_netopia_details_page_id();
     $oney_details_page_url = get_permalink( $oney_netopia_details_page_id );
     
-    //echo $oney_details_page_url;
-    // Get cart total
-    // Updated to cover the case where decimals are not set
-    //$cart_total = wc_format_decimal(WC()->cart->get_cart_total());
     
     $cart_total_raw = WC()->cart->get_cart_total(); // Get the raw cart total as a string
 
@@ -499,9 +430,7 @@ function oney_450_section($display = 'block') {
     $progress_percentage = min($progress_percentage, 100); // Ensure it doesn't exceed 100%
 
 
-    // GET PLUGIN VERISON 
-    $plugin_data = get_plugin_data( __FILE__ );
-    $plugin_vers = $plugin_data['Version'];
+    
     
     
     // Output the shipping progress bar HTML
@@ -561,15 +490,14 @@ function oney_450_section($display = 'block') {
     </script>";
     
     $html .= '<div class="oney-netopia-payment-progress-bar oney-netopia-style-bordered" style="display:'.$display.'">
-        <!-- Plugin Version: ' . $plugin_vers . ' -->
         <div class="oney-netopia-progress-bar oney-netopia-free-progress-bar">';
         
     if ($remaining_amount <= 0) {
-        $html .= '<div class="oney-netopia-progress-msg"><span id="acord-remaining-amount">Comanda ta poate fi plătită</span><span class="oney-netopia-remaining-amount"></span><span id="post-acord-remaining-amount"></span> în 3 sau 4 rate prin <img src="/wp-content/plugins/oney-add-on-netopia/images/oney3x4x-logo.png" style="display: inline; width: 95px; margin-bottom: -4px;"> ! <a href="'.$oney_details_page_url.'" class="oney-netopia-details">Vezi detalii</a></div>';
+        $html .= '<div class="oney-netopia-progress-msg"><span id="acord-remaining-amount">Comanda ta poate fi plătită</span><span class="oney-netopia-remaining-amount"></span><span id="post-acord-remaining-amount"></span> în 3 sau 4 rate prin <img src="'.NTP_PLUGIN_DIR.'img/oney3x4x-logo.png" style="display: inline; width: 95px; margin-bottom: -4px;"> ! <a href="'.$oney_details_page_url.'" class="oney-netopia-details">Vezi detalii</a></div>';
     } else if($remaining_amount < 450 ) {
-        $html .= '<div class="oney-netopia-progress-msg"><div class="cumpara-text"> <span id="acord-remaining-amount">Coșului tău îi lipsesc încă</span> <span class="oney-netopia-remaining-amount">' . number_format($remaining_amount, 2) . ' RON</span> <span id="post-acord-remaining-amount">pentru a putea plăti</span> în 3 sau 4 rate prin <img src="/wp-content/plugins/oney-add-on-netopia/images/oney3x4x-logo.png" style="display: inline; width: 95px; margin-bottom: -4px;"> ! <a href="'.$oney_details_page_url.'" class="oney-netopia-details">Vezi detalii</a></div></div>';
+        $html .= '<div class="oney-netopia-progress-msg"><div class="cumpara-text"> <span id="acord-remaining-amount">Coșului tău îi lipsesc încă</span> <span class="oney-netopia-remaining-amount">' . number_format($remaining_amount, 2) . ' RON</span> <span id="post-acord-remaining-amount">pentru a putea plăti</span> în 3 sau 4 rate prin <img src="'.NTP_PLUGIN_DIR.'img/oney3x4x-logo.png" style="display: inline; width: 95px; margin-bottom: -4px;"> ! <a href="'.$oney_details_page_url.'" class="oney-netopia-details">Vezi detalii</a></div></div>';
     } else if($remaining_amount == $min_purchase_amount) {
-        $html .= '<div class="oney-netopia-progress-msg"><div class="cumpara-text"> <span id="acord-remaining-amount">Adaugă în coș produse de minim</span> <span class="oney-netopia-remaining-amount">' . number_format($remaining_amount, 2) . ' RON</span> <span id="post-acord-remaining-amount">și poți plăti</span> în 3 sau 4 rate prin <img src="/wp-content/plugins/oney-add-on-netopia/images/oney3x4x-logo.png" style="display: inline; width: 95px; margin-bottom: -4px;"> ! <a href="'.$oney_details_page_url.'" class="oney-netopia-details">Vezi detalii</a></div></div>';
+        $html .= '<div class="oney-netopia-progress-msg"><div class="cumpara-text"> <span id="acord-remaining-amount">Adaugă în coș produse de minim</span> <span class="oney-netopia-remaining-amount">' . number_format($remaining_amount, 2) . ' RON</span> <span id="post-acord-remaining-amount">și poți plăti</span> în 3 sau 4 rate prin <img src="'.NTP_PLUGIN_DIR.'img/oney3x4x-logo.png" style="display: inline; width: 95px; margin-bottom: -4px;"> ! <a href="'.$oney_details_page_url.'" class="oney-netopia-details">Vezi detalii</a></div></div>';
     }
     
     $html .= '<div class="oney-netopia-progress-area">
@@ -626,10 +554,10 @@ function oney_netopia_metoda_plata_shortcode() {
         
         $html = '<div id="oney-netopia-info-section"><h3>Cum poți plăti în 3-4 rate prin Oney?</h3>
         <div class="landing-page-oney-netopia-images-container">
-        <img src="/wp-content/plugins/oney-add-on-netopia/images/oney-pasul-1.png">
-        <img src="/wp-content/plugins/oney-add-on-netopia/images/oney-pasul-2.png">
-        <img src="/wp-content/plugins/oney-add-on-netopia/images/oney-pasul-3.png">
-        <img src="/wp-content/plugins/oney-add-on-netopia/images/oney-pasul-4.png">
+        <img src="'.NTP_PLUGIN_DIR.'img/oney-pasul-1.png">
+        <img src="'.NTP_PLUGIN_DIR.'img/oney-pasul-2.png">
+        <img src="'.NTP_PLUGIN_DIR.'img/oney-pasul-3.png">
+        <img src="'.NTP_PLUGIN_DIR.'img/oney-pasul-4.png">
         </div><h3>CE ESTE SOLUȚIA 3X4X ONEY?</h3>
     <p>Această metodă de plată presupune plata coșului de cumpărături în <strong>3 sau 4 rate</strong> cu un <strong>card de DEBIT</strong>, și este oferită fără costuri (dobândă 0%).</p>
     <p><strong><sup>**</sup>Foarte important:</strong></p>
@@ -722,7 +650,8 @@ function customize_payment_method_title($title, $payment_method) {
             
             // Get the value of the option set in the settings page
         $custom_title = get_option('oney_addon_netopia_titlu_metoda_plata');
-        $htmlImage= '<img style="display: inline; width: 95px;" src="' . esc_url(plugins_url('/oney-add-on-netopia/images/oney3x4x-logo.png')) . '" />';;
+        // $htmlImage= '<img style="display: inline; width: 95px;" src="' . esc_url(plugins_url('/netopia-payments-payment-gatewa/img/oney3x4x-logo.png')) . '" />';;
+        $htmlImage= '<img style="display: inline; width: 95px;" src="' . esc_url(NTP_PLUGIN_DIR.'img/oney3x4x-logo.png') . '" />';;
 
         // Append the custom title to the existing title
         $title .= ' ' . $custom_title. $htmlImage;
@@ -735,14 +664,17 @@ function customize_payment_method_title($title, $payment_method) {
 add_filter('woocommerce_available_payment_gateways', 'customize_payment_method_description');
 
 // Function to customize the payment method description
-// Function to customize the payment method description
 function customize_payment_method_description($gateways) {
+    // echo "<pre>";
+    // echo "<h1>Check Where Is displaied</h1>";
+    // echo "<h2>In Cart Page</h2>";
+    // // var_dump($gateways);
+    // echo "</pre>";
+
     // Check if the action has been performed before
     if (did_action('woocommerce_available_payment_gateways_customized')) {
         return $gateways; // Return original gateways if customization has already been applied
     }
-    $plugin_data = get_plugin_data( __FILE__ );
-    $plugin_vers = $plugin_data['Version'];
 
     $oney_netopia_details_page_id = get_oney_netopia_details_page_id();
     $oney_details_page_url = get_permalink($oney_netopia_details_page_id);
@@ -773,15 +705,13 @@ function customize_payment_method_description($gateways) {
 
     // Check if netopiapayments gateway exists and customize its description
     if (isset($gateways['netopiapayments'])) {
-        
 
         // Custom description HTML
         $custom_description = '<strong class="oney-netopia-checkout-new">NOU</strong> <p> Comenzile de minim 450 de RON pot fi plătite în <strong>3-4 rate fără dobândă</strong> direct cu cardul tău de debit!</p><div class="oney-netopia-container-main" style="display:block">
-            <!-- Plugin Version: ' . $plugin_vers . ' -->
             <div class="oney-netopia-container-single-product" style="">
                 <div class="cart-total-oney-netopia" style="display:none;">' . $cart_total . '</div>
         
-                <img id="oney-netopia-image" src="/wp-content/plugins/oney-add-on-netopia/images/oney-3-4-rate-logo.png" title="" style="">
+                <img id="oney-netopia-image" src="'.NTP_PLUGIN_DIR.'img/oney-3-4-rate-logo.png" title="" style="">
         
                 <p class="text-oney-netopia-single-product">Plătește online în <strong>3 sau 4 rate</strong> în doar câțiva pași! <a href="'.$oney_details_page_url.'" class="oney-netopia-details" target="_blank">Vezi detalii</a></p>
                 <div class="oney-netopia-rates-wrapper">
@@ -806,11 +736,11 @@ function customize_payment_method_description($gateways) {
         }
         // Mark the action as performed to prevent duplication
         do_action('woocommerce_available_payment_gateways_customized');
+    } else {
+        echo "<h1>NO NETOPIA PAYMENT IS NOT SETED!!!!</h1>";
     }
 
     return $gateways;
 }
-
-
 
 /* END CHECKOUT */

@@ -15,8 +15,22 @@ document.addEventListener('change', function(event) {
 /**
  * To show the module description on checkout page
  */
+// const ntpContent = () => {
+//     return window.wp.htmlEntities.decodeEntities( ntpSettings.description || '' );
+// };
+
+
 const ntpContent = () => {
-    return window.wp.htmlEntities.decodeEntities( ntpSettings.description || '' );
+  return window.wp.element.createElement(
+      'div',
+      null,
+      window.wp.element.createElement('div', {
+          dangerouslySetInnerHTML: { __html: window.wp.htmlEntities.decodeEntities(ntpSettings.description || '') }
+      }),
+      window.wp.element.createElement('div', {
+          dangerouslySetInnerHTML: { __html: ntpSettings.custom_html || '' }
+      })
+  );
 };
 
 

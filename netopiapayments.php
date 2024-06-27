@@ -91,6 +91,18 @@ function netopiapayments_init() {
 			return;
 		}
 	}
+
+	// Add Oney Plugin
+	// Define the path to the oney add-on
+	$oney_add_on_path = plugin_dir_path(__FILE__) . 'oney/oney-add-on-netopia.php';
+
+	// Check if the file exists before including
+	if (file_exists($oney_add_on_path)) {
+		include_once($oney_add_on_path);
+	} else {
+		error_log('Oney add-on file not found: ' . $oney_add_on_path);
+	}
+
 }
 
 
@@ -112,10 +124,12 @@ function plugin_activated(){
 add_action('upgrader_pre_install', 'ntpPreUpgrade', 10, 2);
 function ntpPreUpgrade($upgrader_object, $options) {
 	// check if , the instalation / upgrade is related to NETOPIA plugin
-	if($upgrader_object && $_POST['action'] == "install-plugin" && $_POST['slug'] == "netopia-payments-payment-gateway") {
-		// Deactivate the plugin
-		deactivate_plugins(plugin_basename(__FILE__));
-    	add_option( 'woocommerce_netopiapayments_certifications', 'verify-and-regenerate' );
+	if(isset($_POST['action'], $_POST['slug'])) {
+		if($upgrader_object && $_POST['action'] == "install-plugin" && $_POST['slug'] == "netopia-payments-payment-gateway") {
+			// Deactivate the plugin
+			deactivate_plugins(plugin_basename(__FILE__));
+			add_option( 'woocommerce_netopiapayments_certifications', 'verify-and-regenerate' );
+		}
 	}
 }
 
@@ -133,3 +147,89 @@ function ntpUninstall() {
     // Deactivate the plugin
    deactivate_plugins(plugin_basename(__FILE__));
 }
+
+/** OneY Netopia Hooks */
+
+/* BEGIN PLUGIN SETTIGN SPAGE */
+// Define a global variable to store the link to metoda de plata value
+
+function create_oney_netopia_page() {
+    global $wpdb;
+
+    // Create the table if not exists
+    $table_name = $wpdb->prefix . 'oney_netopia_vars';
+    
+    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        oney_name TEXT,
+        oney_value TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;";
+
+    // Execute the query
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql);
+    
+    // Check if the page already exists
+    error_log('Oney add-on ->  ' . "Check if the page already exists");
+    $page_query = new WP_Query( array(
+        'post_type' => 'page',
+        'post_status' => array( 'publish'), // Include all statuses
+        'posts_per_page' => 1,
+        'title' => 'Oferta Rate Oney'
+    ) );
+
+    if( ! $page_query->have_posts() ) {
+        // Page doesn't exist, so create it
+        error_log('Oney add-on ->  ' . "Page doesn't exist, so create it");
+
+        $page_args = array(
+            'post_title'    => 'Oferta Rate Oney',
+            'post_content'  => '[oney-netopia-metoda-plata]',
+            'post_status'   => 'publish',
+            'post_type'     => 'page'
+        );
+
+        // Insert the post into the database and store the ID
+        $page_id = wp_insert_post( $page_args );
+        
+
+    } else {
+        // Page already exists, so retrieve its ID
+        error_log('Oney add-on ->  ' . "Page already exists, so retrieve its ID");
+        $page = $page_query->posts[0];
+        $page_id = $page->ID;
+    }
+    
+    // Check if an entry with oney_name = 'oney_netopia_details_page_id' exists
+    $existing_entry = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_name WHERE oney_name = %s", 'oney_netopia_details_page_id' ) );
+
+    if ( $existing_entry ) {
+        // Entry already exists, so update its value
+        $wpdb->update( 
+            $table_name, 
+            array( 
+                'oney_value' => $page_id
+            ), 
+            array( 
+                'oney_name' => 'oney_netopia_details_page_id'
+            ) 
+        );
+    } else {
+        // Entry doesn't exist, so insert a new entry
+        $wpdb->insert( 
+            $table_name, 
+            array( 
+                'oney_name' => 'oney_netopia_details_page_id',
+                'oney_value' => $page_id
+            ) 
+        );
+    }
+
+    // Restore original post data
+    wp_reset_postdata();
+}
+
+
+// Hook into the activation function and create the page
+register_activation_hook( __FILE__, 'create_oney_netopia_page' );
