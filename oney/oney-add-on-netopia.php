@@ -5,7 +5,6 @@
  **/
 
 function get_oney_netopia_details_page_id() {
-    error_log('ONEY FUNC -> get_oney_netopia_details_page_id()');
     global $wpdb;
 
     // Query the database to get the oney_value of 'oney_netopia_details_page_id'
@@ -14,94 +13,16 @@ function get_oney_netopia_details_page_id() {
     
     if ($result) {
         // The value was retrieved successfully, return it
-        error_log('ONEY FUNC -> The value was retrieved successfully, return it -> result : ');
-        // error_log($result);
         return $result->oney_value;
     } else {
         // The value was not found in the database, return null or handle as needed
-        error_log('he value was not found in the database, return null or handle as needed -> result : '.$result);
         return null;
     }
 }
 
 
-/** Temporary Remove */
-// Register plugin settings
-// function oney_addon_netopia_register_settings() {
-//     error_log('ONEY FUNC -> oney_addon_netopia_register_settings()');
-//     // Add a section for plugin settings
-//     add_settings_section(
-//         'oney_addon_netopia_settings_section',
-//         'Oney Addon Netopia Settings',
-//         'oney_addon_netopia_settings_section_callback',
-//         'oney_addon_netopia'
-//     );
-
-//     // Add a field for "Pagina detalii metode de plata" URL
-//     /*
-//     add_settings_field(
-//         'oney_addon_netopia_detalii_metode_plata_url',
-//         'Pagina detalii metode de plata',
-//         'oney_addon_netopia_detalii_metode_plata_url_callback',
-//         'oney_addon_netopia',
-//         'oney_addon_netopia_settings_section'
-//     );
-//     */
-    
-//     // Add a field for "Titlu metoda de plata" with default value
-//     add_settings_field(
-//         'oney_addon_netopia_titlu_metoda_plata',
-//         'Titlu Checkout Metoda de plata',
-//         'oney_addon_netopia_titlu_metoda_plata_callback',
-//         'oney_addon_netopia',
-//         'oney_addon_netopia_settings_section',
-//         array(
-//             'default' => '<span>sau în 3-4 rate prin </span>'
-//         )
-//     );
-    
-//     // Add a field for hiding payment options
-//     add_settings_field(
-//         'oney_addon_netopia_hide_payment_options',
-//         'Ascunde optiunile de plata din checkout generate Netopia(Credit Card, SMS, Bitcoin, etc.)',
-//         'oney_addon_netopia_hide_payment_options_callback',
-//         'oney_addon_netopia',
-//         'oney_addon_netopia_settings_section'
-//     );
-
-//     // Register the settings
-//     register_setting('oney_addon_netopia_settings_group', 'oney_addon_netopia_titlu_metoda_plata');
-//     register_setting('oney_addon_netopia_settings_group', 'oney_addon_netopia_hide_payment_options');
-//     //register_setting('oney_addon_netopia_settings_group', 'oney_addon_netopia_detalii_metode_plata_url');
-// }
-// add_action('admin_init', 'oney_addon_netopia_register_settings');
-
-
-
-// Section callback function
-function oney_addon_netopia_settings_section_callback() {
-    error_log('ONEY FUNC -> oney_addon_netopia_settings_section_callback()');
-
-    echo '<p>Aici vei putea sa iti configurezi setarile modului.</p>';
-// Display the shortcode in a box with a different background color and border
-    echo '<div style="background-color: #f9f9f9; border: 1px solid #ccc; padding: 10px; margin-top: 10px;">';
-    echo '<p style="margin-bottom: 5px;">Informațiile de plata pentru metoda de plata Oney sunt automat generate si introduse in pagina <a href="/oferta-rate-oney" target="_blank">/oferta-rate-oney</a> </p>';
-    echo '<p style="margin-top: 0;">In cazul in care aveti o pagina dedicata cu toate metodele de plata active de pe site, atunci tot ce trebuie sa faceti este să copiați shortcode-ul următor <strong style="font-size:20px;">[oney-netopia-metoda-plata]</strong> si sa il plasati in pagina & pozitia dorita.</p>';
-    echo '</div>';    
-}
-
-// Field callback function
-/*
-function oney_addon_netopia_detalii_metode_plata_url_callback() {
-    $value = get_option('oney_addon_netopia_detalii_metode_plata_url');
-    echo '<input style="width:100%;" type="text" name="oney_addon_netopia_detalii_metode_plata_url" value="' . esc_attr($value) . '" placeholder="/metode-de-plata"/>';
-}
-*/
-
 // Field callback function for "Titlu metoda de plata"
 function oney_addon_netopia_titlu_metoda_plata_callback() {
-    error_log('ONEY FUNC -> oney_addon_netopia_titlu_metoda_plata_callback()');
-
     $value = get_option('oney_addon_netopia_titlu_metoda_plata');
     $default = '<span> sau în 3-4 rate prin <img src="'.NTP_PLUGIN_DIR.'img/oney3x4x-logo.png" style="display: inline; width: 95px;"></span>';
 
@@ -114,7 +35,6 @@ function oney_addon_netopia_titlu_metoda_plata_callback() {
 
 // Callback function for hiding payment options
 function oney_addon_netopia_hide_payment_options_callback() {
-    error_log('ONEY FUNC -> oney_addon_netopia_hide_payment_options_callback()');
 
     $hide_payment_options = get_option('oney_addon_netopia_hide_payment_options', 'yes'); // Default value is 'yes'
 
@@ -123,53 +43,6 @@ function oney_addon_netopia_hide_payment_options_callback() {
     echo '<option value="no" ' . selected('no', $hide_payment_options, false) . '>NU</option>';
     echo '</select>';
 }
-
-
-// Add plugin settings page
-function oney_addon_netopia_add_settings_page() {
-    error_log('ONEY FUNC -> oney_addon_netopia_add_settings_page()');
-
-    add_options_page(
-        'Oney Addon Netopia Settings',
-        'Oney Addon Netopia',
-        'manage_options',
-        'oney_addon_netopia_settings',
-        'oney_addon_netopia_settings_page'
-    );
-}
-add_action('admin_menu', 'oney_addon_netopia_add_settings_page');
-
-// Render settings page
-function oney_addon_netopia_settings_page() {
-    error_log('ONEY FUNC -> oney_addon_netopia_settings_page()');
-    ?>
-    <div class="wrap">
-        <h2>Oney Addon Netopia Settings</h2>
-        <form method="post" action="options.php">
-            <?php settings_fields('oney_addon_netopia_settings_group'); ?>
-            <?php do_settings_sections('oney_addon_netopia'); ?>
-            <?php submit_button(); ?>
-        </form>
-    </div>
-    <?php
-}
-
-// Add settings link on plugins page
-function oney_addon_netopia_add_settings_link($links) {
-    error_log('ONEY FUNC -> oney_addon_netopia_add_settings_link()');
-
-    $settings_link = '<a href="options-general.php?page=oney_addon_netopia_settings">Settings</a>';
-    array_unshift($links, $settings_link);
-    return $links;
-}
-add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'oney_addon_netopia_add_settings_link');
-
-
-/* END PLUGIN SETTINGS */
-
-
-
-
 
 function enqueue_custom_scripts() {
     // Enqueue the image script
@@ -663,14 +536,8 @@ function customize_payment_method_title($title, $payment_method) {
 // Hook into the WooCommerce payment method description filter
 add_filter('woocommerce_available_payment_gateways', 'customize_payment_method_description');
 
-// Function to customize the payment method description
+// Function to customize the payment method description in checkout classic
 function customize_payment_method_description($gateways) {
-    // echo "<pre>";
-    // echo "<h1>Check Where Is displaied</h1>";
-    // echo "<h2>In Cart Page</h2>";
-    // // var_dump($gateways);
-    // echo "</pre>";
-
     // Check if the action has been performed before
     if (did_action('woocommerce_available_payment_gateways_customized')) {
         return $gateways; // Return original gateways if customization has already been applied
@@ -684,60 +551,67 @@ function customize_payment_method_description($gateways) {
         return $gateways; // Return the original gateways without modifications
     }
     
+    // Get the minimum purchase amount (adjust accordingly)
+	$min_purchase_amount = 450;
+	$max_purchase_amount = 12000;
+    $html = "";
     // Get the value of the option set in the settings page
     $cart_total = WC()->cart->total; // Get the total amount from WooCommerce cart
     $cart_total_divided_by_3 = number_format($cart_total / 3, 2); // Calculate total divided by 3 rates and limit to 2 decimals
     $cart_total_divided_by_4 = number_format($cart_total / 4, 2); // Calculate total divided by 4 rates and limit to 2 decimals
 
-    if ($cart_total < 450 || $cart_total > 12000){
-        if (isset($gateways['netopiapayments'])) {
-             if (get_option('oney_addon_netopia_hide_payment_options') =="yes") {
-                $gateways['netopiapayments']->description .= "<style>.woocommerce-checkout-payment div#netopia-methods {display: none;}</style>";
-            }
+    // Calculate the remaining amount for free shipping
+	$remaining_amount = max(0, $min_purchase_amount - $cart_total);
+
+    // Calculate the progress percentage
+    $progress_percentage = ($cart_total / $min_purchase_amount) * 100;
+    $progress_percentage = min($progress_percentage, 100); // Ensure it doesn't exceed 100%
+    
+    if (isset($gateways['netopiapayments'])) {
+        if(in_array('oney', $gateways['netopiapayments']->settings['payment_methods'])) {
             $custom_description = '<p> Comenzile de minim 450 și maxim 12.000 de RON pot fi plătite în <strong>3-4 rate fără dobândă</strong> direct cu cardul tău de debit!</p> ';
             $gateways['netopiapayments']->description .= ' ' . $custom_description;
-            
-            // Mark the action as performed to prevent duplication
+
+            if ($remaining_amount <= 0) {
+                if ($cart_total >= $min_purchase_amount && $cart_total <= $max_purchase_amount){
+                    // Custom description HTML by showing the calculation
+                    $custom_description = '
+                    <div class="oney-netopia-container-single-product" style="">
+                            <div class="cart-total-oney-netopia" style="display:none;">' . $cart_total . '</div>
+                    
+                            <img id="oney-netopia-image" src="'.NTP_PLUGIN_DIR.'img/oney-3-4-rate-logo.png" title="" style="">
+                    
+                            <p class="text-oney-netopia-single-product">Plătește online în <strong>3 sau 4 rate</strong> în doar câțiva pași! <a href="'.$oney_details_page_url.'" class="oney-netopia-details" target="_blank">Vezi detalii</a></p>
+                            <div class="oney-netopia-rates-wrapper">
+                                <div class="oney-netopia-rate">
+                                    <span>3 Rate: </span>
+                                    <span class="oney-netopia-rate-value"><strong id="oney-netopia-3rate">' . $cart_total_divided_by_3 . '</strong>/lună</span>
+                                </div>
+                                <div class="oney-netopia-rate">
+                                    <span>4 Rate: </span>
+                                    <span class="oney-netopia-rate-value"><strong id="oney-netopia-4rate">' . $cart_total_divided_by_4 . '</strong>/lună</span>
+                                </div>
+                            </div>
+                    
+                        </div>
+                    </div>';
+    
+                    // Append the custom description to the existing description
+                    $gateways['netopiapayments']->description .= ' ' . $custom_description;
+                }
+
+            } elseif($remaining_amount < 450 ) {
+                
+                $html .= '<div class="oney-netopia-progress-msg"><div class="cumpara-text"> <span id="acord-remaining-amount">Coșului tău îi lipsesc încă</span> <span class="oney-netopia-remaining-amount">' . number_format($remaining_amount, 2) . ' RON</span> <span id="post-acord-remaining-amount">pentru a putea plăti</span> în 3 sau 4 rate prin <img src="'.NTP_PLUGIN_DIR.'img/oney3x4x-logo.png" style="display: inline; width: 95px; margin-bottom: -4px;"></div></div>';    
+                $html .= '<div class="oney-netopia-progress-area">
+					<div id="oney-netopia-progress-bar" class="oney-netopia-progress-bar" style="width: '.$progress_percentage.'%"></div>
+				</div>';
+
+                $gateways['netopiapayments']->description .= $html;
+            }
+             
             do_action('woocommerce_available_payment_gateways_customized');
         }
-        return $gateways;
-    }
-
-    // Check if netopiapayments gateway exists and customize its description
-    if (isset($gateways['netopiapayments'])) {
-
-        // Custom description HTML
-        $custom_description = '<strong class="oney-netopia-checkout-new">NOU</strong> <p> Comenzile de minim 450 de RON pot fi plătite în <strong>3-4 rate fără dobândă</strong> direct cu cardul tău de debit!</p><div class="oney-netopia-container-main" style="display:block">
-            <div class="oney-netopia-container-single-product" style="">
-                <div class="cart-total-oney-netopia" style="display:none;">' . $cart_total . '</div>
-        
-                <img id="oney-netopia-image" src="'.NTP_PLUGIN_DIR.'img/oney-3-4-rate-logo.png" title="" style="">
-        
-                <p class="text-oney-netopia-single-product">Plătește online în <strong>3 sau 4 rate</strong> în doar câțiva pași! <a href="'.$oney_details_page_url.'" class="oney-netopia-details" target="_blank">Vezi detalii</a></p>
-                <div class="oney-netopia-rates-wrapper">
-                    <div class="oney-netopia-rate">
-                        <span>3 Rate: </span>
-                        <span class="oney-netopia-rate-value"><strong id="oney-netopia-3rate">' . $cart_total_divided_by_3 . '</strong>/lună</span>
-                    </div>
-                    <div class="oney-netopia-rate">
-                        <span>4 Rate: </span>
-                        <span class="oney-netopia-rate-value"><strong id="oney-netopia-4rate">' . $cart_total_divided_by_4 . '</strong>/lună</span>
-                    </div>
-                </div>
-        
-            </div>
-        </div>';
-
-        // Append the custom description to the existing description
-        $gateways['netopiapayments']->description .= ' ' . $custom_description;
-    
-        if (get_option('oney_addon_netopia_hide_payment_options') =="yes") {
-            $gateways['netopiapayments']->description .= "<style>.woocommerce-checkout-payment div#netopia-methods {display: none;}</style>";
-        }
-        // Mark the action as performed to prevent duplication
-        do_action('woocommerce_available_payment_gateways_customized');
-    } else {
-        echo "<h1>NO NETOPIA PAYMENT IS NOT SETED!!!!</h1>";
     }
 
     return $gateways;

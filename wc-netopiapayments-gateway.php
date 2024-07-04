@@ -6,7 +6,7 @@ class netopiapayments extends WC_Payment_Gateway {
 	public $default_status;
 
 	// Dynamic Key Setting
-	// public $sms_setting; // ???
+	public $sms_setting; // Should be keep, becuse maybe some of Merchants already have it and in Upgrade will recive WARNING
 	public $key_setting;
 	public $account_id;
 	public $live_cer;
@@ -161,22 +161,17 @@ class netopiapayments extends WC_Payment_Gateway {
 		        //   'bank_transfer'		      => __( 'Bank Transfer', 'netopiapayments' ),
 		          ),
 		    ),	
-			'sms_setting' => array(
-				'title'       => __( 'For SMS Payment', 'netopiapayments' ),
-				'type'        => 'title',
-				'description' => '',
-			),	
-			'service_id' => array(
-				'title'		=> __( 'Product/service code: ', 'netopiapayments' ),
-				'type'		=> 'text',
-				'desc_tip'	=> __( 'This is Service Code provided by Netopia when you signed up for an account.', 'netopiapayments' ),
-				'description' => __( 'Login to Netopia and go to Admin -> Conturi de comerciant -> Produse si servicii -> Semnul plus', 'netopiapayments' ),
-			),
-			'oney_setting' => array(
-                'title'       => __( 'For Oney Settings, click <a href="options-general.php?page=oney_addon_netopia_settings">here</a>', 'netopiapayments' ),
-                'type'        => 'title',
-                'description' => '',
-            ),
+			// 'sms_setting' => array(
+			// 	'title'       => __( 'For SMS Payment', 'netopiapayments' ),
+			// 	'type'        => 'title',
+			// 	'description' => '',
+			// ),	
+			// 'service_id' => array(
+			// 	'title'		=> __( 'Product/service code: ', 'netopiapayments' ),
+			// 	'type'		=> 'text',
+			// 	'desc_tip'	=> __( 'This is Service Code provided by Netopia when you signed up for an account.', 'netopiapayments' ),
+			// 	'description' => __( 'Login to Netopia and go to Admin -> Conturi de comerciant -> Produse si servicii -> Semnul plus', 'netopiapayments' ),
+			// ),
 		);		
 	}
 
@@ -185,10 +180,6 @@ class netopiapayments extends WC_Payment_Gateway {
 	 * This part was related to this ,...
 	 */
 	function payment_fields() {
-		// echo "<pre>";
-		// echo "<h1>PAYMENT METHOD LIST - Clasic Checkout</h1>";
-		// var_dump($this->payment_methods);
-		// echo "</pre>";
 		// Description of payment method from settings
       	if ( $this->description ) { ?>
         	<p><?php echo $this->description; ?></p>
@@ -208,15 +199,19 @@ class netopiapayments extends WC_Payment_Gateway {
   		?>
   		<div id="netopia-methods">
 	  		<ul>
-	  		<?php  foreach ($payment_methods as $method) { ?>
-	  			<?php 
+	  		<?php
+			foreach ($payment_methods as $method) {
 	  			$checked ='';
-	  			if($method == 'credit_card') $checked = 'checked="checked"';
-	  			?>
-	  				<li>
-	  					<input type="radio" name="netopia_method_pay" class="netopia-method-pay" id="netopia-method-<?=$method?>" value="<?=$method?>" <?php echo $checked; ?> /><label for="inspire-use-stored-payment-info-yes" style="display: inline;"><?php echo $name_methods[$method] ?></label>
-	  				</li> 			
-	  		<?php } ?>
+	  			$checked = $method == 'credit_card' ? 'checked="checked"' : '';
+					if($method != 'oney') {
+						?>
+							<li>
+								<input type="radio" name="netopia_method_pay" class="netopia-method-pay" id="netopia-method-<?=$method?>" value="<?=$method?>" <?php echo $checked; ?> /><label for="inspire-use-stored-payment-info-yes" style="display: inline;"><?php echo $name_methods[$method] ?></label>
+							</li>
+						<?php
+					}
+				}
+			?>
 	  		</ul>
   		</div>
 
@@ -252,42 +247,49 @@ class netopiapayments extends WC_Payment_Gateway {
 
   	// Submit payment
 	public function process_payment( $order_id ) {
-		global $woocommerce;		
-		$order = new WC_Order( $order_id );			
-			if ( version_compare( WOOCOMMERCE_VERSION, '2.1.0', '>=' ) ) {
-				/* 2.1.0 */
-				$checkout_payment_url = $order->get_checkout_payment_url( true );
-			} else {
-				/* 2.0.0 */
-				$checkout_payment_url = get_permalink( get_option ( 'woocommerce_pay_page_id' ) );
-			}
+		global $woocommerce;
 
-			$method = $this->get_post( 'netopia_method_pay' );
-			return array(
-				'result' => 'success', 
-				'redirect' => add_query_arg(
-					'method', 
-					$method, 
-					add_query_arg(
-						'key', 
-						$order->get_order_key(), 
-						$checkout_payment_url						
-					)
+		// Retrieve the selected payment method
+		$method = isset($_POST['netopia_method_pay']) ? sanitize_text_field($_POST['netopia_method_pay']) : ''; // Should be have this value in both classic & WooCommerce Blocks
+
+		// Retrieve the selected payment method from order meta
+		// $method = $order->get_meta('_netopia_method_pay', true);
+
+		$order = new WC_Order( $order_id );	
+
+		if ( version_compare( WOOCOMMERCE_VERSION, '2.1.0', '>=' ) ) {
+			/* 2.1.0 */
+			$checkout_payment_url = $order->get_checkout_payment_url( true );
+		} else {
+			/* 2.0.0 */
+			$checkout_payment_url = get_permalink( get_option ( 'woocommerce_pay_page_id' ) );
+		}
+
+		return array(
+			'result' => 'success', 
+			'redirect' => add_query_arg(
+				'method', 
+				$method, 
+				add_query_arg(
+					'key', 
+					$order->get_order_key(), 
+					$checkout_payment_url						
 				)
-        	);
+			)
+		);
     }
 
 	// Validate fields
-	// Because we already remove the other method of payment, so is not necessary to validate it
-	// public function validate_fields() {
-	// 	$method_pay            = $this->get_post( 'netopia_method_pay' );
-	// 	// Check card number
-	// 	if ( empty( $method_pay ) ) {
-	// 		wc_add_notice( __( 'Alege metoda de plata.', 'netopiapayments' ), $notice_type = 'error' );
-	// 		return false;
-	// 	}
-	// 	return true;
-	// }
+	// Because we have diffrent payment method , so is necessary to validate it
+	public function validate_fields() {
+		$method_pay            = $this->get_post( 'netopia_method_pay' );
+		// Check card number
+		if ( empty( $method_pay ) ) {
+			wc_add_notice( __( 'Alege metoda de plata.', 'netopiapayments' ), $notice_type = 'error' );
+			return false;
+		}
+		return true;
+	}
 
   	/**
 	* Receipt Page
@@ -308,6 +310,7 @@ class netopiapayments extends WC_Payment_Gateway {
 		// Get this Order's information so that we know
 		// who to charge and how much
 		$customer_order = new WC_Order( $order_id );
+
 		$user = new WP_User( $customer_order->get_user_id());
 		
 		$paymentUrl = ( $this->environment == 'yes' ) 
@@ -324,7 +327,9 @@ class netopiapayments extends WC_Payment_Gateway {
 		require_once 'netopia/Payment/Invoice.php';
 		require_once 'netopia/Payment/Address.php';
 
+		// Chosen Payment METHOD of NETOPIA (BTC , CARD ,...)
 		$method = $this->get_post( 'method' );
+		
 		$name_methods = array(
 		          'credit_card' => __( 'Credit Card', 'netopiapayments' ),
 		          'oney' => __( 'Oney', 'netopiapayments' ),
@@ -700,7 +705,6 @@ class netopiapayments extends WC_Payment_Gateway {
 		die();
 	}
 
-
 	/**
 	 * Check if order status is allowed to be changed
 	 */
@@ -730,6 +734,8 @@ class netopiapayments extends WC_Payment_Gateway {
 	private function get_post( $name ) {
 		if ( isset( $_REQUEST[ $name ] ) ) {
 			return $_REQUEST[ $name ];
+		} elseif ( isset( $_POST[ $name ] ) ) {
+			return $_POST[ $name ];
 		}
 		return null;
 	}

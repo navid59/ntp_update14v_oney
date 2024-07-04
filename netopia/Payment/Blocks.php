@@ -61,12 +61,13 @@ final class netopiapaymentsBlocks extends AbstractPaymentMethodType {
 	 */
 	public function get_payment_method_data() {
 		$paymentMethodArr = $this->get_setting( 'payment_methods' );
+
 		return [
 			'title'       		=> $this->get_setting( 'title' ),
 			'description' 		=> $this->get_setting( 'description' ),
 			'supports'    		=> $this->get_supported_features(),
 			'payment_methods'   => $paymentMethodArr,
-			'custom_html'     => $this->tmpHtml($paymentMethodArr), 
+			'custom_html'     => $this->tmpHtml($paymentMethodArr),
 		];
 	}
 
@@ -74,21 +75,19 @@ final class netopiapaymentsBlocks extends AbstractPaymentMethodType {
 		if ( is_admin() ) {
 			return "";
 		}
-		error_log('Woo Commerce Block - PAYMENT Method : '. implode (" -> ",$paymentMethodArr));
+		global $wpdb;
 
 		// Check if "Oney" is selected in woocommerce blocks
 		$NtpPaymentMethod = $this->get_setting( 'payment_methods' );
-		if(in_array('oney', $NtpPaymentMethod)) {
-			$display = 'block';
-		} else {
-			$display = 'none';
-		}
+		$display = in_array('oney', $NtpPaymentMethod) ? 'block' : 'none';
 
 		// Get the minimum purchase amount (adjust accordingly)
 		$min_purchase_amount = 450;
 		$max_purchase_amount = 12000;
 		
-		global $wpdb;
+		// Get the number of decimals set in WooCommerce
+		$cart_total_raw = WC()->cart->get_cart_total(); // Get the raw cart total as a string
+		$decimals = wc_get_price_decimals();
 	
 		// $oney_netopia_details_page_id = get_oney_netopia_details_page_id();
 		// $oney_details_page_url = get_permalink( $oney_netopia_details_page_id );
@@ -98,10 +97,6 @@ final class netopiapaymentsBlocks extends AbstractPaymentMethodType {
 		// Updated to cover the case where decimals are not set
 		//$cart_total = wc_format_decimal(WC()->cart->get_cart_total());
 		
-		$cart_total_raw = WC()->cart->get_cart_total(); // Get the raw cart total as a string
-	
-		// Get the number of decimals set in WooCommerce
-		$decimals = wc_get_price_decimals();
 		
 		// Remove thousand separator if decimals are 0
 		if ($decimals === 0) {
@@ -124,7 +119,9 @@ final class netopiapaymentsBlocks extends AbstractPaymentMethodType {
 		
 		// Output the shipping progress bar HTML
 		// ob_start(); 
-		$html = "";
+		// $html = '<input type="text" id="netopia_selected_method" name="netopia_selected_method" value="credit_card" />'; // Hidden input
+		$html = '';
+		
 		$checked = "";
 		$name_methods = array(
 			'credit_card'	      => __( 'Credit Card', 'netopiapayments' ),
@@ -133,11 +130,12 @@ final class netopiapaymentsBlocks extends AbstractPaymentMethodType {
 			);
 		
 		foreach ($paymentMethodArr as $method) {
-			if($method == 'credit_card') $checked = 'checked="checked"';
+			$checked = ($method == 'credit_card') ? 'checked="checked"' : "" ;
 			if($method != 'oney') {
 				$html .= '
 				<li>
-					<input type="radio" name="netopia_method_pay" class="netopia-method-pay" id="netopia-method-'.$method.'" value="'.$method.'" '.$checked.' /><label for="inspire-use-stored-payment-info-yes" style="display: inline;">'.$name_methods[$method].'</label>
+					<input type="radio" name="netopia_method_pay" class="netopia-method-pay" id="netopia-method-'.$method.'" value="'.$method.'" '.$checked.' />
+					<label for="netopia-method-' . $method . '" style="display: inline;">' . $name_methods[$method] . '</label>
 				</li>
 			';
 			}
@@ -177,56 +175,5 @@ final class netopiapaymentsBlocks extends AbstractPaymentMethodType {
 	
 		return $html;
 	}
-
-	
-	// public function tmpHtml_REC() {
-	// 	$display = 'block';
-
-	// 	// Get the minimum purchase amount (adjust accordingly)
-	// 	$min_purchase_amount = 450;
-
-	// 	$cart_total = WC()->cart->total; // Get the total amount from WooCommerce cart
-	// 	$cart_total_divided_by_3 = number_format($cart_total / 3, 2); // Calculate total divided by 3 rates and limit to 2 decimals
-	// 	$cart_total_divided_by_4 = number_format($cart_total / 4, 2); // Calculate total divided by 4 rates and limit to 2 decimals
-
-	// 	// Calculate the remaining amount for free shipping
-	// 	$remaining_amount = max(0, $min_purchase_amount - $cart_total);
-
-	// 	if ($cart_total <= 0){
-	// 			// In most cases, this does not happen on the checkout page.
-	// 			$oney_custom_description = '<div class="oney-netopia-progress-msg"><span id="acord-remaining-amount">Comanda ta poate fi plătită</span><span class="oney-netopia-remaining-amount"></span><span id="post-acord-remaining-amount"></span> în 3 sau 4 rate prin <img src="'.NTP_PLUGIN_DIR.'img/oney3x4x-logo.png" style="display: inline; width: 95px; margin-bottom: -4px;"> !';
-	// 	} elseif ($cart_total < 450 || $cart_total > 12000){
-	// 			$oney_custom_description = '<p> Comenzile de minim 450 și maxim 12.000 de RON pot fi plătite în <strong>3-4 rate fără dobândă</strong> direct cu cardul tău de debit!</p> ';
-	// 	} else {
-	// 		// Oney - Custom description HTML
-	// 		$oney_custom_description = '<strong class="oney-netopia-checkout-new">NOU</strong> <p> Comenzile de minim 450 de RON pot fi plătite în <strong>3-4 rate fără dobândă</strong> direct cu cardul tău de debit!</p><div class="oney-netopia-container-main" style="display:block">
-    //         <div class="oney-netopia-container-single-product" style="">
-    //             <div class="cart-total-oney-netopia" style="display:none;">' . $cart_total . '</div>
-        
-    //             <img id="oney-netopia-image" src="'.NTP_PLUGIN_DIR.'img/oney-3-4-rate-logo.png" title="" style="">
-        
-    //             <p class="text-oney-netopia-single-product">Plătește online în <strong>3 sau 4 rate</strong> în doar câțiva pași!</p>
-    //             <div class="oney-netopia-rates-wrapper">
-    //                 <div class="oney-netopia-rate">
-    //                     <span>3 Rate: </span>
-    //                     <span class="oney-netopia-rate-value"><strong id="oney-netopia-3rate">' . $cart_total_divided_by_3 . '</strong>/lună</span>
-    //                 </div>
-    //                 <div class="oney-netopia-rate">
-    //                     <span>4 Rate: </span>
-    //                     <span class="oney-netopia-rate-value"><strong id="oney-netopia-4rate">' . $cart_total_divided_by_4 . '</strong>/lună</span>
-    //                 </div>
-    //             </div>
-        
-    //         </div>
-    //     </div>';
-	// 	}
-	// 	$oneyHtmlBody = '
-	// 		<div class="oney-netopia-payment-progress-bar oney-netopia-style-bordered" style="display:'.$display.'">'.
-	// 			'<div class="oney-netopia-progress-bar oney-netopia-free-progress-bar">'.
-	// 			$oney_custom_description.'
-	// 			</div>
-	// 		</div>';
-				
-	// 	return ($oneyHtmlBody);
-	// }
 }
+

@@ -171,7 +171,6 @@ function create_oney_netopia_page() {
     dbDelta($sql);
     
     // Check if the page already exists
-    error_log('Oney add-on ->  ' . "Check if the page already exists");
     $page_query = new WP_Query( array(
         'post_type' => 'page',
         'post_status' => array( 'publish'), // Include all statuses
@@ -180,9 +179,7 @@ function create_oney_netopia_page() {
     ) );
 
     if( ! $page_query->have_posts() ) {
-        // Page doesn't exist, so create it
-        error_log('Oney add-on ->  ' . "Page doesn't exist, so create it");
-
+        // Oney Page doesn't exist, so create it
         $page_args = array(
             'post_title'    => 'Oferta Rate Oney',
             'post_content'  => '[oney-netopia-metoda-plata]',
@@ -196,7 +193,6 @@ function create_oney_netopia_page() {
 
     } else {
         // Page already exists, so retrieve its ID
-        error_log('Oney add-on ->  ' . "Page already exists, so retrieve its ID");
         $page = $page_query->posts[0];
         $page_id = $page->ID;
     }
