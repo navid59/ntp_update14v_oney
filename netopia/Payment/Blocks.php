@@ -138,6 +138,13 @@ final class netopiapaymentsBlocks extends AbstractPaymentMethodType {
 					<label for="netopia-method-' . $method . '" style="display: inline;">' . $name_methods[$method] . '</label>
 				</li>
 			';
+			} elseif($method == 'oney' && !in_array('credit_card', $paymentMethodArr)) {
+				$html .= '
+				<li>
+					<input type="radio" name="netopia_method_pay" class="netopia-method-pay" id="netopia-method-credit_card" value="credit_card" checked="checked" />
+					<label for="netopia-method-credit_card" style="display: inline;">Credit Card</label>
+				</li>
+			';
 			}
 		}
 		
