@@ -592,8 +592,6 @@ function customize_payment_method_description($gateways) {
                                     <span class="oney-netopia-rate-value"><strong id="oney-netopia-4rate">' . $cart_total_divided_by_4 . '</strong>/lună</span>
                                 </div>
                             </div>
-                    
-                        </div>
                     </div>';
     
                     // Append the custom description to the existing description
