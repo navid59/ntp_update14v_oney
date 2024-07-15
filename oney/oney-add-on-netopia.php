@@ -20,30 +20,6 @@ function get_oney_netopia_details_page_id() {
     }
 }
 
-
-// Field callback function for "Titlu metoda de plata"
-function oney_addon_netopia_titlu_metoda_plata_callback() {
-    $value = get_option('oney_addon_netopia_titlu_metoda_plata');
-    $default = '<span> sau în 3-4 rate prin <img src="'.NTP_PLUGIN_DIR.'img/oney3x4x-logo.png" style="display: inline; width: 95px;"></span>';
-
-    echo '<div class="oney-titlu-metoda-plata-editor">';
-    wp_editor($value ?: $default, 'oney_addon_netopia_titlu_metoda_plata', array('textarea_name' => 'oney_addon_netopia_titlu_metoda_plata', 'textarea_rows' => 5, 'editor_class' => 'widefat', 'default_editor' => 'html', 'media_buttons' => false, 'quicktags' => true, 'teeny' => false, 'dfw' => false, 'tinymce' => true, 'drag_drop_upload' => false));
-    echo '<div>Varianta default: '.$default.'</div>';
-    echo '</div>';
-}
-
-
-// Callback function for hiding payment options
-function oney_addon_netopia_hide_payment_options_callback() {
-
-    $hide_payment_options = get_option('oney_addon_netopia_hide_payment_options', 'yes'); // Default value is 'yes'
-
-    echo '<select id="oney_addon_netopia_hide_payment_options" name="oney_addon_netopia_hide_payment_options">';
-    echo '<option value="yes" ' . selected('yes', $hide_payment_options, false) . '>DA</option>';
-    echo '<option value="no" ' . selected('no', $hide_payment_options, false) . '>NU</option>';
-    echo '</select>';
-}
-
 function enqueue_custom_scripts() {
     // Enqueue the image script
     // wp_enqueue_script('oney-logo', get_template_directory_uri() . '/wp-content/plugins/netopia-payments-payment-gatewa/img/oney3x4x-logo.png');
@@ -514,6 +490,9 @@ function customize_payment_method_title($title, $payment_method) {
     // Check if the payment method is the one you want to customize (replace 'netopiapayments' with your payment method ID)
     if ($payment_method === 'netopiapayments') {
         
+        // Display NETOPIA logo in success page
+        $htmlImage = '<img style="display: inline;" src="' . esc_url(NTP_PLUGIN_DIR.'img/netopiapayments.gif') . '" />';
+
         // Get the value of the option set in the settings page
         $cart_total = WC()->cart->total; // Get the total amount from WooCommerce cart
     
@@ -521,13 +500,20 @@ function customize_payment_method_title($title, $payment_method) {
             return $title;
         }
             
-            // Get the value of the option set in the settings page
-        $custom_title = get_option('oney_addon_netopia_titlu_metoda_plata');
-        // $htmlImage= '<img style="display: inline; width: 95px;" src="' . esc_url(plugins_url('/netopia-payments-payment-gatewa/img/oney3x4x-logo.png')) . '" />';;
-        $htmlImage= '<img style="display: inline; width: 95px;" src="' . esc_url(NTP_PLUGIN_DIR.'img/oney3x4x-logo.png') . '" />';;
+
+        $NtpPaymentMethod = get_option( 'woocommerce_netopiapayments_settings', [] );
+        if(in_array('oney', $NtpPaymentMethod['payment_methods'])) {
+            $displayOney = true;
+        } else {
+            $displayOney  = false;
+        }
+
+        if($displayOney) {
+            $htmlImage .= '<img style="display: inline; width: 95px;" src="' . esc_url(NTP_PLUGIN_DIR.'img/oney3x4x-logo.png') . '" />';
+        }
 
         // Append the custom title to the existing title
-        $title .= ' ' . $custom_title. $htmlImage;
+        $title .= ' ' . $htmlImage;
     }
 
     return $title;
