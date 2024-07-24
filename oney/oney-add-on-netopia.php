@@ -238,12 +238,22 @@ function get_cart_total_callback() {
 
 
 
-function oney_450_section($display = 'block') {
+function oney_450_section($display = 'none') {
     global $wpdb;
 
-    // Check if "Oney" is selected in woocommerce blocks
+    if ( is_admin() ) {
+        return "";
+    }
     
+    // Get plugin settings
     $NtpPaymentMethod = get_option( 'woocommerce_netopiapayments_settings', [] );
+    
+    // if  "Oney" is NOT selected, return null
+    if(!in_array('oney', $NtpPaymentMethod['payment_methods'])){
+        return "";
+    }
+
+    // Check if "Oney" is selected put display On
     if(in_array('oney', $NtpPaymentMethod['payment_methods'])) {
         $display = 'block';
     } else {
@@ -278,9 +288,6 @@ function oney_450_section($display = 'block') {
     $progress_percentage = ($cart_total / $min_purchase_amount) * 100;
     $progress_percentage = min($progress_percentage, 100); // Ensure it doesn't exceed 100%
 
-
-    
-    
     
     // Output the shipping progress bar HTML
     // ob_start(); 

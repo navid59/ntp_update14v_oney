@@ -72,13 +72,20 @@ final class netopiapaymentsBlocks extends AbstractPaymentMethodType {
 	}
 
 	public function tmpHtml($paymentMethodArr) {
+		global $wpdb;
+
 		if ( is_admin() ) {
 			return "";
 		}
-		global $wpdb;
 
 		// Check if "Oney" is selected in woocommerce blocks
 		$NtpPaymentMethod = $this->get_setting( 'payment_methods' );
+
+		// if  "Oney" is NOT selected, return null
+		if(!in_array('oney', $NtpPaymentMethod)){
+			return "";
+		}
+
 		$display = in_array('oney', $NtpPaymentMethod) ? 'block' : 'none';
 
 		// Get the minimum purchase amount (adjust accordingly)
@@ -147,7 +154,7 @@ final class netopiapaymentsBlocks extends AbstractPaymentMethodType {
 			';
 			}
 		}
-		
+
 		$html .= '<div class="oney-netopia-payment-progress-bar oney-netopia-style-bordered" style="display:'.$display.'">
 			<div class="oney-netopia-progress-bar oney-netopia-free-progress-bar">
 			<p> Comenzile de minim 450 și maxim 12.000 de RON pot fi plătite în <strong>3-4 rate fără dobândă</strong> direct cu cardul tău de debit!</p> ';
