@@ -20,12 +20,12 @@ function get_oney_netopia_details_page_id() {
     }
 }
 
-function enqueue_custom_scripts() {
-    // Enqueue the image script
-    // wp_enqueue_script('oney-logo', get_template_directory_uri() . '/wp-content/plugins/netopia-payments-payment-gatewa/img/oney3x4x-logo.png');
-    wp_enqueue_script('oney-logo', NTP_PLUGIN_DIR.'img/oney3x4x-logo.png');
-}
-add_action('wp_enqueue_scripts', 'enqueue_custom_scripts');
+// function enqueue_custom_scripts() {
+//     // Enqueue the image script
+//     // wp_enqueue_script('oney-logo', get_template_directory_uri() . '/wp-content/plugins/netopia-payments-payment-gatewa/img/oney3x4x-logo.png');
+//     wp_enqueue_script('oney-logo', NTP_PLUGIN_DIR.'img/oney3x4x-logo.png');
+// }
+// add_action('wp_enqueue_scripts', 'enqueue_custom_scripts');
 
  
 // ENQUE CSS
@@ -174,8 +174,6 @@ function oneynetopia_single_product_page()
         $product_price = $product->get_price();
     }
     
-    // cart total
-    //$cart_total = wc_format_decimal(WC()->cart->get_cart_total());
     
     $cart_total_raw = WC()->cart->get_cart_total(); // Get the raw cart total as a string
 

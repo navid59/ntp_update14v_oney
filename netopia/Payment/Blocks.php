@@ -29,7 +29,6 @@ final class netopiapaymentsBlocks extends AbstractPaymentMethodType {
 	 */
 	public function is_active() {
 		return filter_var( $this->get_setting( 'enabled', false ), FILTER_VALIDATE_BOOLEAN );
-		// return $this->gateway->is_available();
 	}
 
 	/**
@@ -95,14 +94,6 @@ final class netopiapaymentsBlocks extends AbstractPaymentMethodType {
 		// Get the number of decimals set in WooCommerce
 		$cart_total_raw = WC()->cart->get_cart_total(); // Get the raw cart total as a string
 		$decimals = wc_get_price_decimals();
-	
-		// $oney_netopia_details_page_id = get_oney_netopia_details_page_id();
-		// $oney_details_page_url = get_permalink( $oney_netopia_details_page_id );
-		
-		//echo $oney_details_page_url;
-		// Get cart total
-		// Updated to cover the case where decimals are not set
-		//$cart_total = wc_format_decimal(WC()->cart->get_cart_total());
 		
 		
 		// Remove thousand separator if decimals are 0
@@ -124,9 +115,6 @@ final class netopiapaymentsBlocks extends AbstractPaymentMethodType {
 		$progress_percentage = min($progress_percentage, 100); // Ensure it doesn't exceed 100%
 	
 		
-		// Output the shipping progress bar HTML
-		// ob_start(); 
-		// $html = '<input type="text" id="netopia_selected_method" name="netopia_selected_method" value="credit_card" />'; // Hidden input
 		$html = '';
 		
 		$checked = "";

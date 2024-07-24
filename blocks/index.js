@@ -9,12 +9,11 @@ let selectedPaymentMethod = 'credit_card'; // Default value
 
 document.addEventListener('change', function(event) {
   if (event.target.name === 'netopia_method_pay') {
-     // Just Test
+     // Just Debuging
     console.log(event.target.value);
-    console.log(ntpSettings);
+    // console.log(ntpSettings);
    
     selectedPaymentMethod = event.target.value;
-    // document.getElementById("netopia_selected_method").value = selectedPaymentMethod;
     const hiddenInput = document.getElementById('netopia_selected_method');
         if (hiddenInput) {
             hiddenInput.value = selectedPaymentMethod;
@@ -88,42 +87,3 @@ const ntp_Block_Gateway = {
 };
   
 registerPaymentMethod(ntp_Block_Gateway);
-
-
-
-// const ntpContent = (props) => {
-// console.log("Test ION");
-// console.log(props);
-// console.log("Test ION");
-
-//   return window.wp.element.createElement(
-//       'div',
-//       null,
-//       window.wp.element.createElement('div', {
-//           dangerouslySetInnerHTML: { __html: window.wp.htmlEntities.decodeEntities(ntpSettings.description || '') }
-//       }),
-//       window.wp.element.createElement('div', {
-//           dangerouslySetInnerHTML: { __html: ntpSettings.custom_html || '' }
-//       }),
-//       window.wp.element.createElement('input', {
-//           type: 'text',
-//           id: 'netopia_selected_method',
-//           name: 'netopia_selected_method',
-//           value: selectedPaymentMethod
-//       })
-//   );
-// };
-
-
-// const ntp_Block_Gateway = {
-//     name: 'netopiapayments',
-//     label: ntpLabel,
-//     content: Object( window.wp.element.createElement )( ntpContent, null ),
-//     edit: Object( window.wp.element.createElement )( ntpContent, null ),
-//     canMakePayment: () => true,
-//     ariaLabel: ntpLabel,
-//     supports: {
-//         features: ntpSettings.supports,
-//     },
-// };
-// window.wc.wcBlocksRegistry.registerPaymentMethod( ntp_Block_Gateway );
